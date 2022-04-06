@@ -56,6 +56,7 @@ __all__ = [
 
 # -----------------------------------------------------------------------------
 
+# Python 2 & 3
 import types
 import logging
 import base64
@@ -85,7 +86,25 @@ import zlib
 from decimal import Decimal
 from time import mktime
 from wsgiref.handlers import format_date_time
-import urllib.parse as _urlencode
+
+# -----------------------------------------------------------------------------
+
+try:
+    basestring  # basestring was removed in Python 3
+except NameError:
+    basestring = str
+
+try:
+    long  # long integer was removed in Python 3
+except NameError:
+    long = int
+
+# -----------------------------------------------------------------------------
+
+try:
+    import urllib.parse as _urlencode    # Python 3
+except ImportError:
+    import urllib as _urlencode          # Python 2
 
 # -----------------------------------------------------------------------------
 
@@ -254,11 +273,11 @@ class Exchange(object):
         'createLimitOrder': True,
         'createMarketOrder': True,
         'createOrder': True,
+        'deposit': None,
         'editOrder': 'emulated',
         'fetchAccounts': None,
         'fetchBalance': True,
         'fetchBidsAsks': None,
-        'fetchBorrowInterest': None,
         'fetchBorrowRate': None,
         'fetchBorrowRateHistory': None,
         'fetchBorrowRatesPerSymbol': None,
@@ -768,7 +787,7 @@ class Exchange(object):
         value = dictionary[key]
         if isinstance(value, Number):
             return int(value * factor)
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             try:
                 return int(float(value) * factor)
             except ValueError:
@@ -1090,7 +1109,7 @@ class Exchange(object):
     def iso8601(timestamp=None):
         if timestamp is None:
             return timestamp
-        if not isinstance(timestamp, int):
+        if not isinstance(timestamp, (int, long)):
             return None
         if int(timestamp) < 0:
             return None
@@ -1329,7 +1348,7 @@ class Exchange(object):
 
     @staticmethod
     def is_json_encoded_object(input):
-        return (isinstance(input, str) and
+        return (isinstance(input, basestring) and
                 (len(input) >= 2) and
                 ((input[0] == '{') or (input[0] == '[')))
 
@@ -2140,16 +2159,14 @@ class Exchange(object):
     def currency(self, code):
         if not self.currencies:
             raise ExchangeError('Currencies not loaded')
-        if isinstance(code, str) and (code in self.currencies):
+        if isinstance(code, basestring) and (code in self.currencies):
             return self.currencies[code]
         raise ExchangeError('Does not have currency code ' + str(code))
 
     def market(self, symbol):
         if not self.markets:
             raise ExchangeError('Markets not loaded')
-        if not self.markets_by_id:
-            raise ExchangeError('Markets not loaded')
-        if isinstance(symbol, str):
+        if isinstance(symbol, basestring):
             if symbol in self.markets:
                 return self.markets[symbol]
             elif symbol in self.markets_by_id:
@@ -2769,7 +2786,7 @@ class Exchange(object):
             if isinstance(method_options, str):
                 method_type = method_options
             else:
-                method_type = self.safe_string_2(method_options, 'defaultType', 'type', method_type)
+                method_type = self.safe_string_2(method_options, 'defaultType', 'type')
         market_type = method_type if market is None else market['type']
         type = self.safe_string_2(params, 'defaultType', 'type', market_type)
         params = self.omit(params, ['defaultType', 'type'])
