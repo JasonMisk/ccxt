@@ -288,15 +288,12 @@ class valr(Exchange):
     def fetch_order_book(self, symbol, limit=None, params={}):
         self.load_markets()
         method = 'privateGetMarketdataIdOrderbook'
-        if limit is not None:
-            if limit <= 100:
-                method += 'Top'  # get just the top of the orderbook when limit is low
         request = {
-            'pair': self.market_id(symbol),
+            'id': self.market_id(symbol),
         }
         response = getattr(self, method)(self.extend(request, params))
         timestamp = self.safe_integer(response, 'timestamp')
-        return self.parse_order_book(response, symbol, timestamp, 'bids', 'asks', 'price', 'volume')
+        return self.parse_order_book(response, symbol, timestamp, 'Bids', 'Asks', 'price', 'quantity')
 
     def parse_order_status(self, status):
         statuses = {
