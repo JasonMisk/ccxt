@@ -447,7 +447,9 @@ class valr(Exchange):
         self.load_markets()
         response = self.exchangeGetPublicMarketsummary(params)
         tickers = self.index_by(response, 'currencyPair')
-        ids = list(tickers.keys())
+        # ids = list(tickers.keys())
+        #TODO: There's no API endpoint that differentiates between an exchange pair and a web-based trade pair. Workaround for now.
+        ids = ["BTCZAR", "ETHZAR", "USDCZAR", "XRPZAR", "SOLZAR", "BNBZAR", "BTCUSDC", "ETHUSDC", "XRPUSDC", "SOLUSDC", "BNBUSDC"]
         result = {}
         for i in range(0, len(ids)):
             id = ids[i]
