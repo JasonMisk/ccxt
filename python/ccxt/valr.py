@@ -119,6 +119,7 @@ class valr(Exchange):
                         'accounts/{id}/name',
                         'batch/orders',
                         'orders/limit',
+                        'orders/market',
                         'stoporder',
                         'funding_address',
                         'withdrawals',
