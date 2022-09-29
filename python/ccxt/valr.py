@@ -605,7 +605,12 @@ class valr(Exchange):
         method = 'privatePost'
         request = {'requests': []}
         if type == 'market':
-            raise Exception("Market orders not yet implemented.")
+            method += 'OrdersMarket'
+            request = dict(side='BUY' if (side == 'buy') else 'SELL',
+                           baseAmount=amount, #TODO: Not using amount_to_precision
+                           pair=self.market_id(symbol)
+                           )
+
         elif type == 'limit':
             method += 'OrdersLimit'
             request = dict(side='BUY' if (side == 'buy') else 'SELL',
